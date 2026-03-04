@@ -1,9 +1,17 @@
+extern unsigned int _sdata;
+extern unsigned int _edata;
+extern unsigned int _etext;
+extern unsigned int _sbss;
+extern unsigned int _ebss;
+
 // Forward declare the reset handler
 void Reset_Handler(void);
 void HardFault_Handler(void);
 void Default_Handler(void);
 
-// Vector table
+int main(void);
+
+// Vector table defn for STM32F446RE
 // __attribute__((section(".vectors"))) tells the linker to place this in a specific section
 // which your linker script will map to 0x08000000 (start of flash)
 __attribute__((section(".vectors"))) void (*vector_table[])(void) = {
@@ -25,10 +33,32 @@ __attribute__((section(".vectors"))) void (*vector_table[])(void) = {
     Default_Handler,            // SysTick
 };
 
-void Reset_Handler(void) {
+void Reset_Handler(void)
+{
+    unsigned int *src = &_etext;
+    unsigned int *dst = &_sdata;
+
+    // Copy data from .data to SRAM
+    while(dst < &_edata)
+        *dst++ = *src++;
+
+    // Zero .bss
+    dst = &_sbss;
+    while (dst < &_ebss)
+        *dst++ = 0;
+
+    main();
+
+    // Call main()
     while(1);
 }
 
-void HardFault_Handler(void) {
+void HardFault_Handler(void)
+{
     while(1);
+}
+
+void Default_Handler(void)
+{
+    while (1);
 }
