@@ -9,13 +9,13 @@ OBJ = $(SRC:.c=.o)
 all: blinky.bin
 
 %.o: %.c
-	%(CC) %(CFLAGS) -T linker.ld -i $@ $^
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 blinky.elf: $(OBJ)
-	$(CC) %(CFLAGS) -T linker.ld -o $@ $^
+	$(CC) $(CFLAGS) -T linker.ld -o $@ $^
 
 blinky.bin: blinky.elf
-	$(OBJCOPY) -0 binary $< $@
+	$(OBJCOPY) -O binary $< $@
 
 clean:
-	rm -f %(OBJ) blinky.elf blinky.bin
+	rm -f $(OBJ) blinky.elf blinky.bin
